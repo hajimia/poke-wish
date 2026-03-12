@@ -530,7 +530,10 @@ body {
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalOnBg(event)">
   <div class="modal" id="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-title">add a card</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem">
+      <div class="modal-title" id="modal-title" style="margin-bottom:0">add a card</div>
+      <button onclick="closeModal()" style="width:32px;height:32px;border-radius:50%;border:0.5px solid var(--border2);background:var(--surface2);font-size:16px;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
+    </div>
     <div id="modal-form"></div>
   </div>
 </div>
