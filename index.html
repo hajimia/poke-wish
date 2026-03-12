@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
 <!-- ============================================================
-  FIREBASE SETUP —
+  FIREBASE SETUP — 
 ============================================================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -864,7 +864,7 @@ function renderWishlist(tab, items) {
         </div>
         <div class="card-actions">
           <div class="action-btn ${c.gotit ? 'starred' : ''}" onclick="toggleGot('${tab}','${id}',${!!c.gotit})" title="got it">★</div>
-          <div class="action-btn" onclick="openEditModal('${tab}','${id}')" title="edit" style="font-size:12px;display:inline-block;transform:scaleX(-1)">✎</div>
+          <div class="action-btn" onclick="openEditModal('${tab}','${id}')" title="edit" style="font-size:12px"><span style="display:inline-block;transform:scaleX(-1)">✎</span></div>
           <div class="action-btn" onclick="removeItem('${tab}','${id}')" title="remove">×</div>
         </div>
       </div>
