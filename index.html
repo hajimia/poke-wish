@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
 <!-- ============================================================
-  FIREBASE SETUP — 
+  FIREBASE SETUP —
 ============================================================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -864,7 +864,7 @@ function renderWishlist(tab, items) {
         </div>
         <div class="card-actions">
           <div class="action-btn ${c.gotit ? 'starred' : ''}" onclick="toggleGot('${tab}','${id}',${!!c.gotit})" title="got it">★</div>
-          <div class="action-btn" onclick="openEditModal('${tab}','${id}')" title="edit" style="font-size:12px">✎</div>
+          <div class="action-btn" onclick="openEditModal('${tab}','${id}')" title="edit" style="font-size:12px;display:inline-block;transform:scaleX(-1)">✎</div>
           <div class="action-btn" onclick="removeItem('${tab}','${id}')" title="remove">×</div>
         </div>
       </div>
@@ -872,6 +872,7 @@ function renderWishlist(tab, items) {
       <div class="prices">
         <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || '—'}</div></div>
       </div>
+      ${sightingBanner}
       ${c.notes ? `<div style="font-size:11px;color:var(--text3);text-align:center">${c.notes}</div>` : ''}
     </div>`;
   }).join('');
@@ -1005,7 +1006,7 @@ function openDetailModal(tab, id) {
     ${c.tcgLink ? `<a href="${c.tcgLink}" target="_blank" style="display:block;margin-top:12px;text-align:center;font-size:12px;color:var(--purple-400)">view on tcgplayer →</a>` : ''}
     <div style="display:flex;gap:8px;margin-top:14px">
       <button class="submit-btn" style="background:var(--surface2);color:var(--text2);flex:1" onclick="toggleGot('${tab}','${id}',${!!c.gotit});closeModal()">${c.gotit ? 'unmark got it' : '★ mark as got it'}</button>
-      <button class="submit-btn ${tab === 'mia' ? 'submit-mia' : 'submit-vince'}" style="flex:1" onclick="closeModal();openEditModal('${tab}','${id}')">✎ edit</button>
+      <button class="submit-btn ${tab === 'mia' ? 'submit-mia' : 'submit-vince'}" style="flex:1" onclick="closeModal();openEditModal('${tab}','${id}')"><span style="display:inline-block;transform:scaleX(-1)">✎</span> edit</button>
     </div>`;
 }
 
