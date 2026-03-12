@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
 <!-- ============================================================
-  FIREBASE SETUP — 
+  FIREBASE SETUP —
 ============================================================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -786,6 +786,11 @@ function renderWishlist(tab, items) {
     (c.name || '').toLowerCase().includes(q) ||
     (c.set  || '').toLowerCase().includes(q) ||
     (c.rarity || '').toLowerCase().includes(q)
+  );
+
+  const priorityOrder = { High: 0, Medium: 1, Low: 2, '': 3 };
+  entries.sort(([, a], [, b]) =>
+    (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3)
   );
 
   document.getElementById(tab + '-count').textContent =
