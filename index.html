@@ -7,14 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
 <!-- ============================================================
-  FIREBASE SETUP — replace these 8 values with your own config
-  Steps:
-  1. Go to https://console.firebase.google.com
-  2. Create a new project (free)
-  3. Click "Add app" > Web
-  4. Copy your firebaseConfig values below
-  5. In Firebase console: go to Firestore Database > Create database > Start in test mode
-  6. Deploy index.html to GitHub Pages and you're done!
+  FIREBASE SETUP so we can see each other's thingies!
 ============================================================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -185,32 +178,40 @@ body {
   background: var(--surface);
   border: 0.5px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 12px;
+  padding: 14px;
   margin-bottom: 10px;
   display: flex;
-  gap: 11px;
+  flex-direction: column;
+  gap: 10px;
   animation: fadeUp .2s ease;
 }
 @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.card-top-left { display: flex; flex-direction: column; gap: 5px; min-width: 0; flex: 1; }
+
 .card-img {
-  width: 54px;
-  height: 74px;
-  border-radius: var(--radius-sm);
+  width: 100%;
+  height: 180px;
+  border-radius: var(--radius-md);
   background: var(--surface2);
-  flex-shrink: 0;
   overflow: hidden;
   border: 0.5px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.card-img img { width: 100%; height: 100%; object-fit: cover; }
-.card-img-placeholder { font-size: 9px; color: var(--text3); text-align: center; line-height: 1.4; padding: 4px; }
+.card-img img { width: 100%; height: 100%; object-fit: contain; }
+.card-img-placeholder { font-size: 11px; color: var(--text3); text-align: center; line-height: 1.6; padding: 8px; }
 
 .card-body { flex: 1; min-width: 0; }
 .card-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text);
   white-space: nowrap;
@@ -218,7 +219,7 @@ body {
   text-overflow: ellipsis;
 }
 .card-set { font-size: 11px; color: var(--text2); margin-top: 2px; }
-.card-badges { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; align-items: center; }
+.card-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
 
 .badge {
   font-size: 10px;
@@ -252,10 +253,10 @@ body {
 
 .card-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 6px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-shrink: 0;
 }
 .action-btn {
@@ -599,25 +600,27 @@ function renderWishlist(tab, items) {
   }
   list.innerHTML = entries.map(([id, c]) => `
     <div class="card">
+      <div class="card-top">
+        <div class="card-top-left">
+          <div class="card-name">${c.name || '—'}</div>
+          <div class="card-set">${[c.set, c.num].filter(Boolean).join(' · ') || ''}</div>
+          <div class="card-badges">
+            ${priorityBadge(c.priority)}
+            ${c.gotit ? '<span class="badge badge-got">got it!</span>' : ''}
+            ${dealBadge(c.boothPrice, c.tcgPrice)}
+          </div>
+        </div>
+        <div class="card-actions">
+          <div class="action-btn ${c.gotit ? 'starred' : ''}" onclick="toggleGot('${tab}','${id}',${!!c.gotit})" title="got it">★</div>
+          <div class="action-btn" onclick="removeItem('${tab}','${id}')" title="remove">×</div>
+        </div>
+      </div>
       ${imgEl(c.img, 'card-img')}
-      <div class="card-body">
-        <div class="card-name">${c.name || '—'}</div>
-        <div class="card-set">${[c.set, c.num].filter(Boolean).join(' · ') || ''}</div>
-        <div class="card-badges">
-          ${priorityBadge(c.priority)}
-          ${c.gotit ? '<span class="badge badge-got">got it!</span>' : ''}
-          ${dealBadge(c.boothPrice, c.tcgPrice)}
-        </div>
-        <div class="prices">
-          <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || 'add price'}</div></div>
-          <div class="price-box"><div class="price-label">booth</div><div class="price-val ${!c.boothPrice ? 'muted' : ''}">${fmt(c.boothPrice) || '—'}</div></div>
-        </div>
-        ${c.notes ? `<div style="font-size:11px;color:var(--text3);margin-top:6px">${c.notes}</div>` : ''}
+      <div class="prices">
+        <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || 'add price'}</div></div>
+        <div class="price-box"><div class="price-label">booth</div><div class="price-val ${!c.boothPrice ? 'muted' : ''}">${fmt(c.boothPrice) || '—'}</div></div>
       </div>
-      <div class="card-actions">
-        <div class="action-btn" onclick="removeItem('${tab}','${id}')" title="remove">×</div>
-        <div class="action-btn ${c.gotit ? 'starred' : ''}" onclick="toggleGot('${tab}','${id}',${!!c.gotit})" title="got it">★</div>
-      </div>
+      ${c.notes ? `<div style="font-size:11px;color:var(--text3)">${c.notes}</div>` : ''}
     </div>`).join('');
 }
 
