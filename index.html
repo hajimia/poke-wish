@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
 <!-- ============================================================
-  FIREBASE SETUP so we can see each other's thingies!
+  FIREBASE SETUP - 
 ============================================================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -197,16 +197,13 @@ body {
 
 .card-img {
   width: 100%;
-  height: 180px;
-  border-radius: var(--radius-md);
-  background: var(--surface2);
-  overflow: hidden;
-  border: 0.5px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 4px 0;
 }
-.card-img img { width: 100%; height: 100%; object-fit: contain; }
+.card-img img { height: 180px; width: auto; max-width: 100%; object-fit: contain; border-radius: 8px; }
+.card-img-placeholder { font-size: 11px; color: var(--text3); text-align: center; line-height: 1.6; padding: 8px; background: var(--surface2); border-radius: var(--radius-md); width: 100%; }
 .card-img-placeholder { font-size: 11px; color: var(--text3); text-align: center; line-height: 1.6; padding: 8px; }
 
 .card-body { flex: 1; min-width: 0; }
@@ -218,6 +215,8 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.card-name.mia-name { font-weight: 700; color: var(--purple-400); }
+.card-name.vince-name { font-weight: 700; color: #42A5F5; }
 .card-set { font-size: 11px; color: var(--text2); margin-top: 2px; }
 .card-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
 
@@ -229,7 +228,7 @@ body {
   white-space: nowrap;
 }
 .badge-high  { background: var(--purple-50);  color: var(--purple-800); }
-.badge-med   { background: var(--amber-50);   color: var(--amber-800);  }
+.badge-med   { background: var(--amber-50);   color: #0D47A1; }
 .badge-low   { background: var(--surface2);   color: var(--text2);      }
 .badge-deal  { background: var(--green-50);   color: var(--green-800);  }
 .badge-fair  { background: var(--amber-50);   color: var(--amber-800);  }
@@ -245,11 +244,31 @@ body {
   flex: 1;
   background: var(--surface2);
   border-radius: var(--radius-sm);
-  padding: 5px 8px;
+  padding: 7px 10px;
+  border: 0.5px solid var(--border2);
 }
-.price-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; }
-.price-val   { font-size: 13px; font-weight: 500; color: var(--text); margin-top: 1px; }
-.price-val.muted { color: var(--text3); font-size: 11px; }
+.price-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
+.price-val   { font-size: 14px; font-weight: 500; color: var(--text); margin-top: 2px; }
+.price-val.muted { color: var(--text3); font-size: 12px; }
+
+.sighting-deal-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--green-50);
+  border: 0.5px solid #97C459;
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+}
+.sighting-deal-banner.over {
+  background: var(--red-50);
+  border-color: #F09595;
+}
+.sighting-deal-text { font-size: 12px; font-weight: 500; color: var(--green-800); }
+.sighting-deal-banner.over .sighting-deal-text { color: var(--red-800); }
+.sighting-deal-sub { font-size: 10px; color: var(--green-800); opacity: 0.75; margin-top: 1px; }
+.sighting-deal-banner.over .sighting-deal-sub { color: var(--red-800); }
 
 .card-actions {
   display: flex;
@@ -590,6 +609,16 @@ function imgEl(src, cls) {
   return `<div class="${cls}"><div class="card-img-placeholder">no img</div></div>`;
 }
 
+function getBestSighting(cardName) {
+  const sightings = Object.values(localData.sightings || {});
+  const matches = sightings.filter(s =>
+    s.name && cardName && s.name.toLowerCase().trim() === cardName.toLowerCase().trim() && s.boothPrice
+  );
+  if (!matches.length) return null;
+  matches.sort((a, b) => parseFloat(a.boothPrice) - parseFloat(b.boothPrice));
+  return matches[0];
+}
+
 function renderWishlist(tab, items) {
   const entries = Object.entries(items || {});
   document.getElementById(tab + '-count').textContent = entries.length + (entries.length === 1 ? ' card' : ' cards');
@@ -598,16 +627,34 @@ function renderWishlist(tab, items) {
     list.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><div>no cards yet — add one!</div></div>';
     return;
   }
-  list.innerHTML = entries.map(([id, c]) => `
+  const nameClass = tab === 'mia' ? 'mia-name' : 'vince-name';
+  list.innerHTML = entries.map(([id, c]) => {
+    const best = getBestSighting(c.name);
+    const tcg = parseFloat(c.tcgPrice);
+    let sightingBanner = '';
+    if (best) {
+      const bp = parseFloat(best.boothPrice);
+      const isDeal = !isNaN(tcg) && bp < tcg;
+      const isOver = !isNaN(tcg) && bp > tcg;
+      const saving = !isNaN(tcg) ? Math.abs(tcg - bp).toFixed(2) : null;
+      sightingBanner = `
+        <div class="sighting-deal-banner ${isOver ? 'over' : ''}">
+          <div>
+            <div class="sighting-deal-text">${isDeal ? '✦ deal spotted!' : isOver ? 'overpriced sighting' : 'sighting found'} — ${best.booth || 'unknown booth'}</div>
+            <div class="sighting-deal-sub">${fmt(best.boothPrice)}${saving && isDeal ? ' · saves $' + saving : saving && isOver ? ' · $' + saving + ' over market' : ''}</div>
+          </div>
+          <span class="badge ${isDeal ? 'badge-deal' : isOver ? 'badge-over' : 'badge-fair'}">${fmt(best.boothPrice)}</span>
+        </div>`;
+    }
+    return `
     <div class="card">
       <div class="card-top">
         <div class="card-top-left">
-          <div class="card-name">${c.name || '—'}</div>
+          <div class="card-name ${nameClass}">${c.name || '—'}</div>
           <div class="card-set">${[c.set, c.num].filter(Boolean).join(' · ') || ''}</div>
           <div class="card-badges">
             ${priorityBadge(c.priority)}
             ${c.gotit ? '<span class="badge badge-got">got it!</span>' : ''}
-            ${dealBadge(c.boothPrice, c.tcgPrice)}
           </div>
         </div>
         <div class="card-actions">
@@ -617,11 +664,13 @@ function renderWishlist(tab, items) {
       </div>
       ${imgEl(c.img, 'card-img')}
       <div class="prices">
-        <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || 'add price'}</div></div>
-        <div class="price-box"><div class="price-label">booth</div><div class="price-val ${!c.boothPrice ? 'muted' : ''}">${fmt(c.boothPrice) || '—'}</div></div>
+        <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || '—'}</div></div>
+        <div class="price-box"><div class="price-label">ebay</div><div class="price-val ${!c.ebayPrice ? 'muted' : ''}">${fmt(c.ebayPrice) || '—'}</div></div>
       </div>
+      ${sightingBanner}
       ${c.notes ? `<div style="font-size:11px;color:var(--text3)">${c.notes}</div>` : ''}
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function renderSightings(items) {
@@ -674,7 +723,11 @@ function listenToCollection(tab) {
     const items = {};
     snap.forEach(d => items[d.id] = d.data());
     localData[tab] = items;
-    if (tab === 'sightings') renderSightings(items);
+    if (tab === 'sightings') {
+      renderSightings(items);
+      renderWishlist('mia', localData.mia);
+      renderWishlist('vince', localData.vince);
+    }
     else renderWishlist(tab, items);
   });
 }
