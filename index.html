@@ -385,7 +385,7 @@ body {
 .form-group { margin-bottom: 11px; }
 .form-label {
   font-size: 10px;
-  color: var(--text3);
+  color: var(--text2);
   margin-bottom: 4px;
   display: block;
   font-weight: 500;
@@ -408,6 +408,8 @@ body {
   appearance: none;
   -webkit-appearance: none;
 }
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: var(--text2); opacity: 1; }
 .form-group input:focus,
 .form-group select:focus { border-color: var(--purple-200); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
