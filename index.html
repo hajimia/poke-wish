@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
 <!-- ============================================================
-  FIREBASE SETUP —
+  FIREBASE SETUP — 
 ============================================================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -871,9 +871,7 @@ function renderWishlist(tab, items) {
       ${imgEl(c.img, 'card-img')}
       <div class="prices">
         <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || '—'}</div></div>
-        <div class="price-box"><div class="price-label">ebay</div><div class="price-val ${!c.ebayPrice ? 'muted' : ''}">${fmt(c.ebayPrice) || '—'}</div></div>
       </div>
-      ${sightingBanner}
       ${c.notes ? `<div style="font-size:11px;color:var(--text3);text-align:center">${c.notes}</div>` : ''}
     </div>`;
   }).join('');
@@ -1001,7 +999,6 @@ function openDetailModal(tab, id) {
     </div>
     <div class="prices" style="margin-top:0">
       <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || '—'}</div></div>
-      <div class="price-box"><div class="price-label">ebay</div><div class="price-val ${!c.ebayPrice ? 'muted' : ''}">${fmt(c.ebayPrice) || '—'}</div></div>
     </div>
     ${sightingBanner}
     ${c.notes ? `<div style="font-size:12px;color:var(--text2);margin-top:10px;text-align:center">${c.notes}</div>` : ''}
@@ -1036,10 +1033,7 @@ function openEditModal(tab, id) {
           <option ${c.priority === 'Low' ? 'selected' : ''}>Low</option>
         </select></div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">tcgplayer price</label><input id="f-tcgprice" type="number" step="0.01" value="${c.tcgPrice || ''}"></div>
-      <div class="form-group"><label class="form-label">ebay price</label><input id="f-bprice" type="number" step="0.01" value="${c.ebayPrice || ''}"></div>
-    </div>
+    <div class="form-group"><label class="form-label">tcgplayer price</label><input id="f-tcgprice" type="number" step="0.01" value="${c.tcgPrice || ''}"></div>
     <div class="form-group"><label class="form-label">card photo</label>
       <div class="img-upload" onclick="document.getElementById('f-img').click()">
         ${c.img ? `<img src="${c.img}" style="width:100%;max-height:120px;object-fit:contain;border-radius:8px">` : '<div class="img-upload-label">tap to change photo</div>'}
@@ -1069,7 +1063,6 @@ async function saveEdit(tab, id) {
     rarity:    (document.getElementById('f-rarity').value  || '').trim(),
     priority:   document.getElementById('f-priority').value || '',
     tcgPrice:   document.getElementById('f-tcgprice').value || '',
-    ebayPrice:  document.getElementById('f-bprice').value   || '',
     img:       currentImgData || imgUrl || existing.img || '',
     tcgLink:   (document.getElementById('f-tcglink').value || '').trim(),
     notes:     (document.getElementById('f-notes').value   || '').trim(),
@@ -1131,10 +1124,7 @@ function openModal(tab) {
         <div class="form-group"><label class="form-label">priority</label>
           <select id="f-priority"><option value="">—</option><option>High</option><option>Medium</option><option>Low</option></select></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">tcgplayer price</label><input id="f-tcgprice" type="number" step="0.01" placeholder="0.00"></div>
-        <div class="form-group"><label class="form-label">booth price</label><input id="f-bprice" type="number" step="0.01" placeholder="0.00"></div>
-      </div>
+      <div class="form-group"><label class="form-label">tcgplayer price</label><input id="f-tcgprice" type="number" step="0.01" placeholder="0.00"></div>
       <div class="form-group"><label class="form-label">card photo</label>
         <div class="img-upload" onclick="document.getElementById('f-img').click()">
           <div class="img-upload-label">tap to upload · or paste url below</div>
@@ -1190,7 +1180,6 @@ async function submitItem(tab) {
       rarity:    (document.getElementById('f-rarity').value  || '').trim(),
       priority:   document.getElementById('f-priority').value || '',
       tcgPrice:   document.getElementById('f-tcgprice').value || '',
-      boothPrice: document.getElementById('f-bprice').value   || '',
       img:       currentImgData || imgUrl || '',
       tcgLink:   (document.getElementById('f-tcglink').value || '').trim(),
       notes:     (document.getElementById('f-notes').value   || '').trim(),
