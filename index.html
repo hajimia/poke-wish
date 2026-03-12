@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
 <!-- ============================================================
-  FIREBASE SETUP - 
+  FIREBASE SETUP — 
 ============================================================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -270,6 +270,142 @@ body {
 .sighting-deal-sub { font-size: 10px; color: var(--green-800); opacity: 0.75; margin-top: 1px; }
 .sighting-deal-banner.over .sighting-deal-sub { color: var(--red-800); }
 
+.autocomplete-wrap { position: relative; }
+.autocomplete-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-md);
+  z-index: 50;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+.autocomplete-item {
+  padding: 9px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 0.5px solid var(--border);
+}
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover { background: var(--surface2); }
+.autocomplete-item-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.autocomplete-item-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.autocomplete-who { font-size: 9px; font-weight: 500; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; }
+.autocomplete-who.mia { background: var(--purple-50); color: var(--purple-800); }
+.autocomplete-who.vince { background: #E8F4FD; color: #0D47A1; }
+
+/* ── search + view toggle ── */
+.list-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.search-wrap { flex: 1; position: relative; }
+.search-wrap input {
+  width: 100%;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  padding: 8px 12px 8px 34px;
+  border-radius: 20px;
+  border: 0.5px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+.search-wrap input::placeholder { color: var(--text3); }
+.search-wrap input:focus { border-color: var(--purple-200); }
+.search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text3);
+  pointer-events: none;
+}
+.view-toggle {
+  display: flex;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.view-btn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text3);
+  background: var(--surface2);
+  transition: all .15s;
+  border: none;
+}
+.view-btn.active { background: var(--surface); color: var(--text); }
+.view-btn:first-child { border-right: 0.5px solid var(--border2); }
+
+/* ── gallery grid ── */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.gallery-item {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .15s;
+  animation: fadeUp .2s ease;
+}
+.gallery-item:hover { border-color: var(--border2); }
+.gallery-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.gallery-img img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-img-placeholder { font-size: 9px; color: var(--text3); text-align: center; padding: 4px; line-height: 1.4; }
+.gallery-footer {
+  padding: 5px 6px 6px;
+  border-top: 0.5px solid var(--border);
+}
+.gallery-name {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.gallery-sub { font-size: 9px; color: var(--text3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gallery-badges { display: flex; gap: 3px; margin-top: 4px; flex-wrap: wrap; }
+.gallery-badges .badge { font-size: 9px; padding: 1px 6px; }
+
+/* ── card detail modal ── */
+.detail-img {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.detail-img img { height: 200px; width: auto; max-width: 100%; border-radius: 8px; object-fit: contain; }
+
 .card-actions {
   display: flex;
   flex-direction: row;
@@ -529,12 +665,32 @@ body {
   </div>
 
   <div class="section visible" id="sec-mia">
+    <div class="list-toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="search" placeholder="search cards..." oninput="filterCards('mia', this.value)" id="search-mia">
+      </div>
+      <div class="view-toggle">
+        <div class="view-btn active" id="list-btn-mia" onclick="setView('mia','list')" title="list view">☰</div>
+        <div class="view-btn" id="grid-btn-mia" onclick="setView('mia','grid')" title="gallery view">⊞</div>
+      </div>
+    </div>
     <div class="section-meta"><span class="dot" style="background:var(--purple-400)"></span><span id="mia-count">loading...</span></div>
     <div id="mia-list"><div class="loading">connecting...</div></div>
     <button class="add-btn" onclick="openModal('mia')">+ add a card</button>
   </div>
 
   <div class="section" id="sec-vince">
+    <div class="list-toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="search" placeholder="search cards..." oninput="filterCards('vince', this.value)" id="search-vince">
+      </div>
+      <div class="view-toggle">
+        <div class="view-btn active" id="list-btn-vince" onclick="setView('vince','list')" title="list view">☰</div>
+        <div class="view-btn" id="grid-btn-vince" onclick="setView('vince','grid')" title="gallery view">⊞</div>
+      </div>
+    </div>
     <div class="section-meta"><span class="dot" style="background:#42A5F5"></span><span id="vince-count">loading...</span></div>
     <div id="vince-list"><div class="loading">connecting...</div></div>
     <button class="add-btn" onclick="openModal('vince')">+ add a card</button>
@@ -566,6 +722,20 @@ let currentImgData = null;
 let db, cols, fns;
 let unsubscribers = {};
 let localData = { mia: {}, vince: {}, sightings: {} };
+let viewMode = { mia: 'list', vince: 'list' };
+let searchQuery = { mia: '', vince: '' };
+
+function setView(tab, mode) {
+  viewMode[tab] = mode;
+  document.getElementById('list-btn-' + tab).classList.toggle('active', mode === 'list');
+  document.getElementById('grid-btn-' + tab).classList.toggle('active', mode === 'grid');
+  renderWishlist(tab, localData[tab]);
+}
+
+function filterCards(tab, query) {
+  searchQuery[tab] = query.toLowerCase();
+  renderWishlist(tab, localData[tab]);
+}
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -609,25 +779,55 @@ function imgEl(src, cls) {
   return `<div class="${cls}"><div class="card-img-placeholder">no img</div></div>`;
 }
 
-function getBestSighting(cardName) {
-  const sightings = Object.values(localData.sightings || {});
-  const matches = sightings.filter(s =>
-    s.name && cardName && s.name.toLowerCase().trim() === cardName.toLowerCase().trim() && s.boothPrice
-  );
-  if (!matches.length) return null;
-  matches.sort((a, b) => parseFloat(a.boothPrice) - parseFloat(b.boothPrice));
-  return matches[0];
-}
-
 function renderWishlist(tab, items) {
-  const entries = Object.entries(items || {});
-  document.getElementById(tab + '-count').textContent = entries.length + (entries.length === 1 ? ' card' : ' cards');
+  let entries = Object.entries(items || {});
+  const q = searchQuery[tab] || '';
+  if (q) entries = entries.filter(([, c]) =>
+    (c.name || '').toLowerCase().includes(q) ||
+    (c.set  || '').toLowerCase().includes(q) ||
+    (c.rarity || '').toLowerCase().includes(q)
+  );
+
+  document.getElementById(tab + '-count').textContent =
+    entries.length + (entries.length === 1 ? ' card' : ' cards') +
+    (q ? ' (filtered)' : '');
+
   const list = document.getElementById(tab + '-list');
-  if (!entries.length) {
+  if (!Object.keys(items || {}).length) {
     list.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><div>no cards yet — add one!</div></div>';
     return;
   }
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><div>no cards match your search</div></div>';
+    return;
+  }
+
   const nameClass = tab === 'mia' ? 'mia-name' : 'vince-name';
+
+  if (viewMode[tab] === 'grid') {
+    list.innerHTML = `<div class="gallery-grid">${entries.map(([id, c]) => {
+      const best = getBestSighting(c.name);
+      const hasDeal = best && c.tcgPrice && parseFloat(best.boothPrice) < parseFloat(c.tcgPrice);
+      return `
+      <div class="gallery-item" onclick="openDetailModal('${tab}','${id}')">
+        <div class="gallery-img">
+          ${c.img
+            ? `<img src="${c.img}" onerror="this.parentNode.innerHTML='<div class=gallery-img-placeholder>no img</div>'">`
+            : '<div class="gallery-img-placeholder">no img</div>'}
+        </div>
+        <div class="gallery-footer">
+          <div class="gallery-name ${nameClass}">${c.name || '—'}</div>
+          <div class="gallery-sub">${c.set || ''}</div>
+          <div class="gallery-badges">
+            ${c.priority ? `<span class="badge badge-${c.priority === 'High' ? 'high' : c.priority === 'Medium' ? 'med' : 'low'}">${c.priority.toLowerCase()}</span>` : ''}
+            ${hasDeal ? '<span class="badge badge-deal">✦ deal</span>' : ''}
+            ${c.gotit ? '<span class="badge badge-got">got it</span>' : ''}
+          </div>
+        </div>
+      </div>`; }).join('')}</div>`;
+    return;
+  }
+
   list.innerHTML = entries.map(([id, c]) => {
     const best = getBestSighting(c.name);
     const tcg = parseFloat(c.tcgPrice);
@@ -659,6 +859,7 @@ function renderWishlist(tab, items) {
         </div>
         <div class="card-actions">
           <div class="action-btn ${c.gotit ? 'starred' : ''}" onclick="toggleGot('${tab}','${id}',${!!c.gotit})" title="got it">★</div>
+          <div class="action-btn" onclick="openEditModal('${tab}','${id}')" title="edit" style="font-size:12px">✎</div>
           <div class="action-btn" onclick="removeItem('${tab}','${id}')" title="remove">×</div>
         </div>
       </div>
@@ -668,9 +869,19 @@ function renderWishlist(tab, items) {
         <div class="price-box"><div class="price-label">ebay</div><div class="price-val ${!c.ebayPrice ? 'muted' : ''}">${fmt(c.ebayPrice) || '—'}</div></div>
       </div>
       ${sightingBanner}
-      ${c.notes ? `<div style="font-size:11px;color:var(--text3)">${c.notes}</div>` : ''}
+      ${c.notes ? `<div style="font-size:11px;color:var(--text3);text-align:center">${c.notes}</div>` : ''}
     </div>`;
   }).join('');
+}
+
+function getBestSighting(cardName) {
+  const sightings = Object.values(localData.sightings || {});
+  const matches = sightings.filter(s =>
+    s.name && cardName && s.name.toLowerCase().trim() === cardName.toLowerCase().trim() && s.boothPrice
+  );
+  if (!matches.length) return null;
+  matches.sort((a, b) => parseFloat(a.boothPrice) - parseFloat(b.boothPrice));
+  return matches[0];
 }
 
 function renderSightings(items) {
@@ -751,6 +962,120 @@ else window.addEventListener('db-ready', initFirebase);
 
 const firebaseConfig = { apiKey: document.querySelector('script[type=module]') ? 'check-module' : '' };
 
+function openDetailModal(tab, id) {
+  const c = localData[tab][id];
+  if (!c) return;
+  const nameClass = tab === 'mia' ? 'mia-name' : 'vince-name';
+  const best = getBestSighting(c.name);
+  const tcg = parseFloat(c.tcgPrice);
+  let sightingBanner = '';
+  if (best) {
+    const bp = parseFloat(best.boothPrice);
+    const isDeal = !isNaN(tcg) && bp < tcg;
+    const isOver = !isNaN(tcg) && bp > tcg;
+    const saving = !isNaN(tcg) ? Math.abs(tcg - bp).toFixed(2) : null;
+    sightingBanner = `
+      <div class="sighting-deal-banner ${isOver ? 'over' : ''}">
+        <div>
+          <div class="sighting-deal-text">${isDeal ? '✦ deal spotted!' : isOver ? 'overpriced sighting' : 'sighting found'} — ${best.booth || 'unknown booth'}</div>
+          <div class="sighting-deal-sub">${fmt(best.boothPrice)}${saving && isDeal ? ' · saves $' + saving : saving && isOver ? ' · $' + saving + ' over market' : ''}</div>
+        </div>
+        <span class="badge ${isDeal ? 'badge-deal' : isOver ? 'badge-over' : 'badge-fair'}">${fmt(best.boothPrice)}</span>
+      </div>`;
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-title').textContent = c.name || '—';
+  document.getElementById('modal-form').innerHTML = `
+    ${c.img ? `<div class="detail-img"><img src="${c.img}"></div>` : ''}
+    <div style="margin-bottom:8px">
+      <div style="font-size:12px;color:var(--text2)">${[c.set, c.num, c.rarity].filter(Boolean).join(' · ')}</div>
+      <div style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap">
+        ${priorityBadge(c.priority)}
+        ${c.gotit ? '<span class="badge badge-got">got it!</span>' : ''}
+      </div>
+    </div>
+    <div class="prices" style="margin-top:0">
+      <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || '—'}</div></div>
+      <div class="price-box"><div class="price-label">ebay</div><div class="price-val ${!c.ebayPrice ? 'muted' : ''}">${fmt(c.ebayPrice) || '—'}</div></div>
+    </div>
+    ${sightingBanner}
+    ${c.notes ? `<div style="font-size:12px;color:var(--text2);margin-top:10px;text-align:center">${c.notes}</div>` : ''}
+    ${c.tcgLink ? `<a href="${c.tcgLink}" target="_blank" style="display:block;margin-top:12px;text-align:center;font-size:12px;color:var(--purple-400)">view on tcgplayer →</a>` : ''}
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="submit-btn" style="background:var(--surface2);color:var(--text2);flex:1" onclick="toggleGot('${tab}','${id}',${!!c.gotit});closeModal()">${c.gotit ? 'unmark got it' : '★ mark as got it'}</button>
+      <button class="submit-btn ${tab === 'mia' ? 'submit-mia' : 'submit-vince'}" style="flex:1" onclick="closeModal();openEditModal('${tab}','${id}')">✎ edit</button>
+    </div>`;
+}
+
+function openEditModal(tab, id) {
+  const c = localData[tab][id];
+  if (!c) return;
+  currentImgData = null;
+  document.getElementById('modal-overlay').classList.add('open');
+  const color = tab === 'mia' ? 'submit-mia' : 'submit-vince';
+  document.getElementById('modal-title').textContent = 'edit card';
+  document.getElementById('modal-form').innerHTML = `
+    <div class="form-group"><label class="form-label">card name</label>
+      <input id="f-name" value="${c.name || ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">set</label><input id="f-set" value="${c.set || ''}"></div>
+      <div class="form-group"><label class="form-label">card #</label><input id="f-num" value="${c.num || ''}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">rarity</label><input id="f-rarity" value="${c.rarity || ''}"></div>
+      <div class="form-group"><label class="form-label">priority</label>
+        <select id="f-priority">
+          <option value="" ${!c.priority ? 'selected' : ''}>—</option>
+          <option ${c.priority === 'High' ? 'selected' : ''}>High</option>
+          <option ${c.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+          <option ${c.priority === 'Low' ? 'selected' : ''}>Low</option>
+        </select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">tcgplayer price</label><input id="f-tcgprice" type="number" step="0.01" value="${c.tcgPrice || ''}"></div>
+      <div class="form-group"><label class="form-label">ebay price</label><input id="f-bprice" type="number" step="0.01" value="${c.ebayPrice || ''}"></div>
+    </div>
+    <div class="form-group"><label class="form-label">card photo</label>
+      <div class="img-upload" onclick="document.getElementById('f-img').click()">
+        ${c.img ? `<img src="${c.img}" style="width:100%;max-height:120px;object-fit:contain;border-radius:8px">` : '<div class="img-upload-label">tap to change photo</div>'}
+        <img id="img-preview" class="img-preview">
+        <input type="file" id="f-img" accept="image/*" style="display:none" onchange="previewImg(this)">
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">image url (optional)</label>
+      <input id="f-imgurl" value="${c.img && !c.img.startsWith('data:') ? c.img : ''}"></div>
+    <div class="form-group"><label class="form-label">tcgplayer link</label>
+      <input id="f-tcglink" value="${c.tcgLink || ''}"></div>
+    <div class="form-group"><label class="form-label">notes</label>
+      <input id="f-notes" value="${c.notes || ''}"></div>
+    <button class="submit-btn ${color}" onclick="saveEdit('${tab}','${id}')">save changes ✦</button>`;
+}
+
+async function saveEdit(tab, id) {
+  const name = (document.getElementById('f-name').value || '').trim();
+  if (!name) { showToast('card name is required!'); return; }
+  const imgUrl = (document.getElementById('f-imgurl').value || '').trim();
+  const existing = localData[tab][id];
+  const updated = {
+    ...existing,
+    name,
+    set:       (document.getElementById('f-set').value     || '').trim(),
+    num:       (document.getElementById('f-num').value     || '').trim(),
+    rarity:    (document.getElementById('f-rarity').value  || '').trim(),
+    priority:   document.getElementById('f-priority').value || '',
+    tcgPrice:   document.getElementById('f-tcgprice').value || '',
+    ebayPrice:  document.getElementById('f-bprice').value   || '',
+    img:       currentImgData || imgUrl || existing.img || '',
+    tcgLink:   (document.getElementById('f-tcglink').value || '').trim(),
+    notes:     (document.getElementById('f-notes').value   || '').trim(),
+  };
+  try {
+    await fns.setDoc(fns.doc(db, tab, id), updated);
+    showToast('updated ✦');
+    closeModal();
+  } catch(e) { showToast('error saving'); }
+}
+
 function openModal(tab) {
   currentImgData = null;
   document.getElementById('modal-overlay').classList.add('open');
@@ -762,8 +1087,13 @@ function openModal(tab) {
     form.innerHTML = `
       <div class="form-group"><label class="form-label">who spotted it?</label>
         <select id="f-who"><option value="mia">mia</option><option value="vince">vince</option></select></div>
-      <div class="form-group"><label class="form-label">card name</label>
-        <input id="f-name" placeholder="e.g. Charizard ex"></div>
+      <div class="form-group">
+        <label class="form-label">card name</label>
+        <div class="autocomplete-wrap">
+          <input id="f-name" placeholder="e.g. Charizard ex" autocomplete="off" oninput="handleAutocomplete(this.value)">
+          <div class="autocomplete-list" id="autocomplete-list" style="display:none"></div>
+        </div>
+      </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">set</label><input id="f-set" placeholder="Obsidian Flames"></div>
         <div class="form-group"><label class="form-label">booth</label><input id="f-booth" placeholder="Booth 42"></div>
@@ -870,6 +1200,57 @@ async function submitItem(tab) {
   } catch(e) {
     showToast('error — is firebase connected?');
   }
+}
+
+function handleAutocomplete(query) {
+  const list = document.getElementById('autocomplete-list');
+  if (!list) return;
+  if (!query || query.length < 2) { list.style.display = 'none'; return; }
+
+  const q = query.toLowerCase();
+  const results = [];
+  for (const tab of ['mia', 'vince']) {
+    for (const [, card] of Object.entries(localData[tab] || {})) {
+      if (card.name && card.name.toLowerCase().includes(q)) {
+        results.push({ ...card, _tab: tab });
+      }
+    }
+  }
+
+  if (!results.length) { list.style.display = 'none'; return; }
+
+  list.style.display = 'block';
+  list.innerHTML = results.slice(0, 6).map((r, i) => `
+    <div class="autocomplete-item" onclick="selectAutocomplete(${i})">
+      <div style="flex:1;min-width:0">
+        <div class="autocomplete-item-name">${r.name}</div>
+        <div class="autocomplete-item-sub">${[r.set, r.num].filter(Boolean).join(' · ') || ''}</div>
+      </div>
+      <span class="autocomplete-who ${r._tab}">${r._tab}</span>
+    </div>`).join('');
+
+  list._results = results;
+}
+
+function selectAutocomplete(i) {
+  const list = document.getElementById('autocomplete-list');
+  if (!list || !list._results) return;
+  const r = list._results[i];
+  document.getElementById('f-name').value = r.name || '';
+  const setEl = document.getElementById('f-set');
+  if (setEl && r.set) setEl.value = r.set;
+  const tcgEl = document.getElementById('f-tcgprice');
+  if (tcgEl && r.tcgPrice) tcgEl.value = r.tcgPrice;
+  if (r.img) {
+    currentImgData = r.img;
+    const preview = document.getElementById('img-preview');
+    if (preview) { preview.src = r.img; preview.style.display = 'block'; }
+    const label = document.querySelector('.img-upload-label');
+    if (label) label.textContent = 'tap to change photo';
+  }
+  list.style.display = 'none';
+  showToast('filled in from ' + r._tab + '\'s wishlist ✦');
+  document.getElementById('f-booth').focus();
 }
 
 function closeModal() {
