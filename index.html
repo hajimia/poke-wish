@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>poke wish 🌟</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+  FIREBASE SETUP — replace these 8 values with your own config
+  Steps:
+  1. Go to https://console.firebase.google.com
+  2. Create a new project (free)
+  3. Click "Add app" > Web
+  4. Copy your firebaseConfig values below
+  5. In Firebase console: go to Firestore Database > Create database > Start in test mode
+  6. Deploy index.html to GitHub Pages and you're done!
+============================================================ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, doc, onSnapshot, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyA4OGC-EA5wOwoeVzUk3xPyl5CyGqsbT4k",
+    authDomain:        "poke-wish.firebaseapp.com",
+    projectId:         "poke-wish",
+    storageBucket:     "poke-wish.firebasestorage.app",
+    messagingSenderId: "999018880430",
+    appId:             "1:999018880430:web:5a91fef45111f8a5bfbc3f"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  const cols = {
+    mia:       collection(db, "mia"),
+    vince:     collection(db, "vince"),
+    sightings: collection(db, "sightings"),
+  };
+
+  window._db     = db;
+  window._cols   = cols;
+  window._fns    = { collection, doc, onSnapshot, setDoc, deleteDoc, updateDoc };
+  window._dbReady = true;
+  window.dispatchEvent(new Event("db-ready"));
+</script>
+
+<style>
+:root {
+  --purple-50:  #EEEDFE;
+  --purple-200: #AFA9EC;
+  --purple-400: #7F77DD;
+  --purple-800: #3C3489;
+  --amber-50:   #E8F4FD;
+  --amber-200:  #90CAF9;
+  --amber-400:  #42A5F5;
+  --amber-800:  #0D47A1;
+  --pink-50:    #FBEAF0;
+  --pink-200:   #ED93B1;
+  --pink-400:   #D4537E;
+  --pink-800:   #72243E;
+  --green-50:   #EAF3DE;
+  --green-800:  #27500A;
+  --red-50:     #FCEBEB;
+  --red-800:    #791F1F;
+  --teal-50:    #E1F5EE;
+  --teal-800:   #085041;
+
+  --bg:         #faf9f7;
+  --surface:    #ffffff;
+  --surface2:   #f3f1ee;
+  --border:     rgba(0,0,0,0.08);
+  --border2:    rgba(0,0,0,0.14);
+  --text:       #1a1814;
+  --text2:      #6b6760;
+  --text3:      #a8a49f;
+  --radius-sm:  10px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:      #16140f;
+    --surface: #1e1c17;
+    --surface2:#2a2820;
+    --border:  rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text:    #f0ede8;
+    --text2:   #9b9790;
+    --text3:   #5c5a55;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 0 0 6rem;
+  position: relative;
+}
+
+/* ── header ── */
+.header {
+  padding: 2rem 1.25rem 0;
+  text-align: center;
+}
+.header-eyebrow {
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+.header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  color: var(--text);
+  line-height: 1.1;
+}
+.header-title em { font-style: italic; color: var(--purple-400); }
+.header-sub {
+  font-size: 13px;
+  color: var(--text3);
+  margin-top: 5px;
+}
+.header-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1.25rem 1.25rem 0;
+}
+
+/* ── tabs ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 1rem 1.25rem 0;
+}
+.tab {
+  flex: 1;
+  padding: 9px 6px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.18s ease;
+  color: var(--text2);
+  background: var(--surface2);
+  user-select: none;
+}
+.tab:hover { border-color: var(--border2); }
+.tab.mia-active    { background: var(--purple-50); color: var(--purple-800); border-color: var(--purple-200); }
+.tab.vince-active  { background: #E8F4FD;  color: #0D47A1;  border-color: #90CAF9; }
+.tab.sight-active  { background: var(--pink-50);   color: var(--pink-800);   border-color: var(--pink-200);  }
+
+/* ── section ── */
+.section { padding: 14px 1.25rem 0; display: none; }
+.section.visible { display: block; }
+.section-meta {
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* ── wish card ── */
+.card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 11px;
+  animation: fadeUp .2s ease;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+.card-img {
+  width: 54px;
+  height: 74px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-img img { width: 100%; height: 100%; object-fit: cover; }
+.card-img-placeholder { font-size: 9px; color: var(--text3); text-align: center; line-height: 1.4; padding: 4px; }
+
+.card-body { flex: 1; min-width: 0; }
+.card-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-set { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.card-badges { display: flex; gap: 5px; margin-top: 7px; flex-wrap: wrap; align-items: center; }
+
+.badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-high  { background: var(--purple-50);  color: var(--purple-800); }
+.badge-med   { background: var(--amber-50);   color: var(--amber-800);  }
+.badge-low   { background: var(--surface2);   color: var(--text2);      }
+.badge-deal  { background: var(--green-50);   color: var(--green-800);  }
+.badge-fair  { background: var(--amber-50);   color: var(--amber-800);  }
+.badge-over  { background: var(--red-50);     color: var(--red-800);    }
+.badge-got   { background: var(--teal-50);    color: var(--teal-800);   }
+
+.prices {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.price-box {
+  flex: 1;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+}
+.price-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; }
+.price-val   { font-size: 13px; font-weight: 500; color: var(--text); margin-top: 1px; }
+.price-val.muted { color: var(--text3); font-size: 11px; }
+
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.action-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 0.5px solid var(--border2);
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text2);
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.action-btn:hover { border-color: var(--border2); background: var(--bg); }
+.action-btn.starred { color: var(--amber-200); border-color: var(--amber-200); background: var(--amber-50); }
+
+/* ── sighting card ── */
+.sight-card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  margin-bottom: 10px;
+  animation: fadeUp .2s ease;
+}
+.sight-top { display: flex; gap: 11px; align-items: flex-start; }
+.sight-img {
+  width: 54px;
+  height: 74px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content:center;
+}
+.sight-img img { width:100%; height:100%; object-fit:cover; }
+.who-pill { font-size: 10px; font-weight: 500; padding: 2px 9px; border-radius: 20px; flex-shrink: 0; }
+.who-mia   { background: var(--purple-50); color: var(--purple-800); }
+.who-vince { background: var(--amber-50);  color: var(--amber-800);  }
+.divider { height: 0.5px; background: var(--border); margin: 10px 0; }
+.price-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ── add button ── */
+.add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 4px;
+  padding: 13px;
+  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--border2);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text2);
+  cursor: pointer;
+  background: transparent;
+  width: 100%;
+  transition: all .15s;
+}
+.add-btn:hover { background: var(--surface); border-color: var(--purple-200); color: var(--purple-800); }
+
+/* ── empty state ── */
+.empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text3);
+  font-size: 13px;
+}
+.empty-icon {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  color: var(--border2);
+  margin-bottom: 8px;
+}
+
+/* ── modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 1.25rem 1.25rem 2.5rem;
+  width: 100%;
+  max-width: 440px;
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: slideUp .22s ease;
+}
+@keyframes slideUp { from { transform: translateY(40px); opacity:0; } to { transform: none; opacity:1; } }
+.modal-handle {
+  width: 38px;
+  height: 4px;
+  background: var(--border2);
+  border-radius: 2px;
+  margin: 0 auto 1.1rem;
+}
+.modal-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--text);
+  margin-bottom: 1.1rem;
+}
+
+/* ── form ── */
+.form-group { margin-bottom: 11px; }
+.form-label {
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 4px;
+  display: block;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.form-group input:focus,
+.form-group select:focus { border-color: var(--purple-200); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.img-upload {
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  background: var(--surface2);
+  transition: border-color .15s;
+}
+.img-upload:hover { border-color: var(--pink-200); }
+.img-upload-label { font-size: 12px; color: var(--text2); }
+.img-preview { width: 100%; max-height: 130px; object-fit: contain; border-radius: 8px; margin-top: 8px; display: none; }
+
+.submit-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  border: none;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: opacity .15s;
+  letter-spacing: .01em;
+}
+.submit-btn:hover { opacity: .88; }
+.submit-mia   { background: var(--purple-400); color: #fff; }
+.submit-vince { background: #42A5F5;  color: #0D47A1; }
+.submit-sight { background: var(--pink-400);   color: #fff; }
+
+/* ── loading ── */
+.loading {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-size: 13px;
+  color: var(--text3);
+}
+
+/* ── toast ── */
+.toast {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: all .25s;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 200;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── setup banner ── */
+.setup-banner {
+  margin: 1rem 1.25rem 0;
+  background: var(--amber-50);
+  border: 1px solid var(--amber-200);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--amber-800);
+  line-height: 1.5;
+}
+.setup-banner strong { font-weight: 500; }
+.setup-banner a { color: var(--purple-800); }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="header">
+    <div class="header-eyebrow">pokemon tcg</div>
+    <div class="header-title"><em style="color:#90CAF9">poke</em> wish 🌟</div>
+    <div class="header-sub">mia &amp; vince</div>
+  </div>
+
+  <div class="setup-banner" id="setup-banner" style="display:none">
+    <strong>firebase not connected yet.</strong> open this file and replace the 6 <code>REPLACE_WITH_YOUR_...</code> values with your Firebase config to enable real-time sync. <a href="https://console.firebase.google.com" target="_blank">open firebase console →</a>
+  </div>
+
+  <div class="header-divider"></div>
+
+  <div class="tabs">
+    <div class="tab mia-active" onclick="switchTab('mia')">mia</div>
+    <div class="tab" onclick="switchTab('vince')">vince</div>
+    <div class="tab" onclick="switchTab('sightings')">sightings</div>
+  </div>
+
+  <div class="section visible" id="sec-mia">
+    <div class="section-meta"><span class="dot" style="background:var(--purple-400)"></span><span id="mia-count">loading...</span></div>
+    <div id="mia-list"><div class="loading">connecting...</div></div>
+    <button class="add-btn" onclick="openModal('mia')">+ add a card</button>
+  </div>
+
+  <div class="section" id="sec-vince">
+    <div class="section-meta"><span class="dot" style="background:#42A5F5"></span><span id="vince-count">loading...</span></div>
+    <div id="vince-list"><div class="loading">connecting...</div></div>
+    <button class="add-btn" onclick="openModal('vince')">+ add a card</button>
+  </div>
+
+  <div class="section" id="sec-sightings">
+    <div class="section-meta"><span class="dot" style="background:var(--pink-400)"></span><span id="sight-count">loading...</span></div>
+    <div id="sight-list"><div class="loading">connecting...</div></div>
+    <button class="add-btn" onclick="openModal('sightings')">+ log a sighting</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">add a card</div>
+    <div id="modal-form"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentTab = 'mia';
+let currentImgData = null;
+let db, cols, fns;
+let unsubscribers = {};
+let localData = { mia: {}, vince: {}, sightings: {} };
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.className = 'tab';
+    if (['mia','vince','sightings'][i] === tab) el.classList.add(tab + '-active');
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.getElementById('sec-' + tab).classList.add('visible');
+}
+
+function dealBadge(booth, market) {
+  if (!booth || !market) return '';
+  const b = parseFloat(booth), m = parseFloat(market);
+  if (isNaN(b) || isNaN(m)) return '';
+  if (b < m)  return '<span class="badge badge-deal">✦ deal</span>';
+  if (b === m) return '<span class="badge badge-fair">fair</span>';
+  return '<span class="badge badge-over">overpriced</span>';
+}
+
+function priorityBadge(p) {
+  if (!p) return '';
+  const map = { High: 'badge-high', Medium: 'badge-med', Low: 'badge-low' };
+  return `<span class="badge ${map[p] || 'badge-low'}">${p.toLowerCase()}</span>`;
+}
+
+function fmt(val) {
+  const n = parseFloat(val);
+  return isNaN(n) ? null : '$' + n.toFixed(2);
+}
+
+function imgEl(src, cls) {
+  if (src) return `<div class="${cls}"><img src="${src}" onerror="this.parentNode.innerHTML='<div class=card-img-placeholder>no img</div>'"></div>`;
+  return `<div class="${cls}"><div class="card-img-placeholder">no img</div></div>`;
+}
+
+function renderWishlist(tab, items) {
+  const entries = Object.entries(items || {});
+  document.getElementById(tab + '-count').textContent = entries.length + (entries.length === 1 ? ' card' : ' cards');
+  const list = document.getElementById(tab + '-list');
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><div>no cards yet — add one!</div></div>';
+    return;
+  }
+  list.innerHTML = entries.map(([id, c]) => `
+    <div class="card">
+      ${imgEl(c.img, 'card-img')}
+      <div class="card-body">
+        <div class="card-name">${c.name || '—'}</div>
+        <div class="card-set">${[c.set, c.num].filter(Boolean).join(' · ') || ''}</div>
+        <div class="card-badges">
+          ${priorityBadge(c.priority)}
+          ${c.gotit ? '<span class="badge badge-got">got it!</span>' : ''}
+          ${dealBadge(c.boothPrice, c.tcgPrice)}
+        </div>
+        <div class="prices">
+          <div class="price-box"><div class="price-label">tcgplayer</div><div class="price-val ${!c.tcgPrice ? 'muted' : ''}">${fmt(c.tcgPrice) || 'add price'}</div></div>
+          <div class="price-box"><div class="price-label">booth</div><div class="price-val ${!c.boothPrice ? 'muted' : ''}">${fmt(c.boothPrice) || '—'}</div></div>
+        </div>
+        ${c.notes ? `<div style="font-size:11px;color:var(--text3);margin-top:6px">${c.notes}</div>` : ''}
+      </div>
+      <div class="card-actions">
+        <div class="action-btn" onclick="removeItem('${tab}','${id}')" title="remove">×</div>
+        <div class="action-btn ${c.gotit ? 'starred' : ''}" onclick="toggleGot('${tab}','${id}',${!!c.gotit})" title="got it">★</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderSightings(items) {
+  const entries = Object.entries(items || {});
+  document.getElementById('sight-count').textContent = entries.length + (entries.length === 1 ? ' sighting' : ' sightings');
+  const list = document.getElementById('sight-list');
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><div>no sightings yet!</div></div>';
+    return;
+  }
+  list.innerHTML = entries.map(([id, s]) => `
+    <div class="sight-card">
+      <div class="sight-top">
+        ${imgEl(s.img, 'sight-img')}
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">
+            <div style="font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name || '—'}</div>
+            <span class="who-pill ${s.who === 'mia' ? 'who-mia' : 'who-vince'}">${s.who || '?'}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px">${[s.booth, s.set].filter(Boolean).join(' · ') || ''}</div>
+          <div style="margin-top:7px">${dealBadge(s.boothPrice, s.tcgPrice)}</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="price-grid">
+        <div class="price-box"><div class="price-label">asking</div><div class="price-val ${!s.boothPrice ? 'muted' : ''}">${fmt(s.boothPrice) || '—'}</div></div>
+        <div class="price-box"><div class="price-label">market</div><div class="price-val ${!s.tcgPrice ? 'muted' : ''}">${fmt(s.tcgPrice) || '—'}</div></div>
+        <div class="action-btn" onclick="removeItem('sightings','${id}')">×</div>
+      </div>
+      ${s.notes ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border)">${s.notes}</div>` : ''}
+    </div>`).join('');
+}
+
+async function removeItem(tab, id) {
+  try {
+    await fns.deleteDoc(fns.doc(db, tab, id));
+    showToast('removed ✦');
+  } catch(e) { showToast('error removing'); }
+}
+
+async function toggleGot(tab, id, current) {
+  try {
+    await fns.updateDoc(fns.doc(db, tab, id), { gotit: !current });
+  } catch(e) {}
+}
+
+function listenToCollection(tab) {
+  if (unsubscribers[tab]) unsubscribers[tab]();
+  unsubscribers[tab] = fns.onSnapshot(cols[tab], snap => {
+    const items = {};
+    snap.forEach(d => items[d.id] = d.data());
+    localData[tab] = items;
+    if (tab === 'sightings') renderSightings(items);
+    else renderWishlist(tab, items);
+  });
+}
+
+function initFirebase() {
+  db   = window._db;
+  cols = window._cols;
+  fns  = window._fns;
+  if (firebaseConfig.apiKey.startsWith('REPLACE')) {
+    document.getElementById('setup-banner').style.display = 'block';
+    renderWishlist('mia', {});
+    renderWishlist('vince', {});
+    renderSightings({});
+    return;
+  }
+  ['mia','vince','sightings'].forEach(listenToCollection);
+}
+
+if (window._dbReady) initFirebase();
+else window.addEventListener('db-ready', initFirebase);
+
+const firebaseConfig = { apiKey: document.querySelector('script[type=module]') ? 'check-module' : '' };
+
+function openModal(tab) {
+  currentImgData = null;
+  document.getElementById('modal-overlay').classList.add('open');
+  const title = document.getElementById('modal-title');
+  const form  = document.getElementById('modal-form');
+
+  if (tab === 'sightings') {
+    title.textContent = 'log a sighting';
+    form.innerHTML = `
+      <div class="form-group"><label class="form-label">who spotted it?</label>
+        <select id="f-who"><option value="mia">mia</option><option value="vince">vince</option></select></div>
+      <div class="form-group"><label class="form-label">card name</label>
+        <input id="f-name" placeholder="e.g. Charizard ex"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">set</label><input id="f-set" placeholder="Obsidian Flames"></div>
+        <div class="form-group"><label class="form-label">booth</label><input id="f-booth" placeholder="Booth 42"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">asking price</label><input id="f-bprice" type="number" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">tcgplayer price</label><input id="f-tcgprice" type="number" step="0.01" placeholder="0.00"></div>
+      </div>
+      <div class="form-group"><label class="form-label">card photo</label>
+        <div class="img-upload" onclick="document.getElementById('f-img').click()">
+          <div class="img-upload-label">tap to upload photo</div>
+          <img id="img-preview" class="img-preview">
+          <input type="file" id="f-img" accept="image/*" style="display:none" onchange="previewImg(this)">
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">notes</label><input id="f-notes" placeholder="condition, holo, etc."></div>
+      <button class="submit-btn submit-sight" onclick="submitItem('sightings')">log it ✦</button>`;
+  } else {
+    const color = tab === 'mia' ? 'submit-mia' : 'submit-vince';
+    title.textContent = 'add a card';
+    form.innerHTML = `
+      <div class="form-group"><label class="form-label">card name</label>
+        <input id="f-name" placeholder="e.g. Pikachu ex SAR"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">set</label><input id="f-set" placeholder="Paldea Evolved"></div>
+        <div class="form-group"><label class="form-label">card #</label><input id="f-num" placeholder="185/193"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">rarity</label><input id="f-rarity" placeholder="SAR"></div>
+        <div class="form-group"><label class="form-label">priority</label>
+          <select id="f-priority"><option value="">—</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">tcgplayer price</label><input id="f-tcgprice" type="number" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">booth price</label><input id="f-bprice" type="number" step="0.01" placeholder="0.00"></div>
+      </div>
+      <div class="form-group"><label class="form-label">card photo</label>
+        <div class="img-upload" onclick="document.getElementById('f-img').click()">
+          <div class="img-upload-label">tap to upload · or paste url below</div>
+          <img id="img-preview" class="img-preview">
+          <input type="file" id="f-img" accept="image/*" style="display:none" onchange="previewImg(this)">
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">image url (optional)</label>
+        <input id="f-imgurl" placeholder="https://product-images.tcgplayer.com/..."></div>
+      <div class="form-group"><label class="form-label">tcgplayer link</label>
+        <input id="f-tcglink" placeholder="https://tcgplayer.com/..."></div>
+      <div class="form-group"><label class="form-label">notes</label>
+        <input id="f-notes" placeholder="holo preferred, etc."></div>
+      <button class="submit-btn ${color}" onclick="submitItem('${tab}')">add to wishlist ✦</button>`;
+  }
+}
+
+function previewImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentImgData = e.target.result;
+    const p = document.getElementById('img-preview');
+    p.src = currentImgData;
+    p.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitItem(tab) {
+  const name = (document.getElementById('f-name').value || '').trim();
+  if (!name) { showToast('card name is required!'); return; }
+
+  const id  = Date.now().toString();
+  let item  = { name, createdAt: id };
+
+  if (tab === 'sightings') {
+    item = { ...item,
+      who:       document.getElementById('f-who').value,
+      set:       (document.getElementById('f-set').value   || '').trim(),
+      booth:     (document.getElementById('f-booth').value || '').trim(),
+      boothPrice: document.getElementById('f-bprice').value   || '',
+      tcgPrice:   document.getElementById('f-tcgprice').value || '',
+      img:       currentImgData || '',
+      notes:     (document.getElementById('f-notes').value || '').trim(),
+    };
+  } else {
+    const imgUrl = (document.getElementById('f-imgurl').value || '').trim();
+    item = { ...item,
+      set:       (document.getElementById('f-set').value     || '').trim(),
+      num:       (document.getElementById('f-num').value     || '').trim(),
+      rarity:    (document.getElementById('f-rarity').value  || '').trim(),
+      priority:   document.getElementById('f-priority').value || '',
+      tcgPrice:   document.getElementById('f-tcgprice').value || '',
+      boothPrice: document.getElementById('f-bprice').value   || '',
+      img:       currentImgData || imgUrl || '',
+      tcgLink:   (document.getElementById('f-tcglink').value || '').trim(),
+      notes:     (document.getElementById('f-notes').value   || '').trim(),
+      gotit:     false,
+    };
+  }
+
+  try {
+    await fns.setDoc(fns.doc(db, tab, id), item);
+    showToast('saved ✦');
+    closeModal();
+  } catch(e) {
+    showToast('error — is firebase connected?');
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentImgData = null;
+}
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
